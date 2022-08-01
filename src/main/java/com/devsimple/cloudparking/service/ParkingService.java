@@ -20,6 +20,19 @@ public class ParkingService {
         parking.setColor("Branco");
         parking.setLicense("MT-1221");
         parkingMap.put(id, parking);
+
+        var id2 = getUUID();
+        Parking parking2 = new Parking();
+        parking2.setId(id2);
+        parking2.setModel("GOL");
+        parking2.setState("MA");
+        parking2.setColor("PRATA");
+        parking2.setLicense("MT-1000");
+        parkingMap.put(id2, parking2);
+    }
+
+    public Parking findById(String id){
+        return parkingMap.get(id);
     }
 
     public List<Parking> findAll(){
