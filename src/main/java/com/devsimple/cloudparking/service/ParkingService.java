@@ -3,7 +3,11 @@ package com.devsimple.cloudparking.service;
 import com.devsimple.cloudparking.entity.Parking;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,16 +35,23 @@ public class ParkingService {
         parkingMap.put(id2, parking2);
     }
 
-    public Parking findById(String id){
+    private static String getUUID() {
+        return UUID.randomUUID().toString().replace("-", "");
+    }
+
+    public Parking findById(String id) {
         return parkingMap.get(id);
     }
 
-    public List<Parking> findAll(){
+    public List<Parking> findAll() {
         return parkingMap.values().stream().collect(Collectors.toList());
     }
 
-    private static String getUUID(){
-        return UUID.randomUUID().toString().replace("-","");
+    public Parking save(Parking parking) {
+        String uuid = getUUID();
+        parking.setId(uuid);
+        parking.setEntryDate(LocalDateTime.now());
+        parkingMap.put(uuid, parking);
+        return parking;
     }
-
 }

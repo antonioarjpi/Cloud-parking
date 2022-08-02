@@ -1,5 +1,6 @@
 package com.devsimple.cloudparking.config;
 
+import com.devsimple.cloudparking.controller.dto.ParkingCreateDTO;
 import com.devsimple.cloudparking.controller.dto.ParkingDTO;
 import com.devsimple.cloudparking.entity.Parking;
 import org.modelmapper.ModelMapper;
@@ -19,5 +20,13 @@ public class ModelMapperConfig {
 
     public List<ParkingDTO> parkingDTOlist(List<Parking> parkings){
         return parkings.stream().map(this::parkingDTO).collect(Collectors.toList());
+    }
+
+    public Parking toParking(ParkingDTO parkingDTO){
+        return MODEL_MAPPER.map(parkingDTO, Parking.class);
+    }
+
+    public Parking toParkingCreate(ParkingCreateDTO parkingDTO){
+        return MODEL_MAPPER.map(parkingDTO, Parking.class);
     }
 }
