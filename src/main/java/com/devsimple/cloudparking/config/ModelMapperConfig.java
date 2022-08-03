@@ -2,6 +2,7 @@ package com.devsimple.cloudparking.config;
 
 import com.devsimple.cloudparking.controller.dto.ParkingCreateDTO;
 import com.devsimple.cloudparking.controller.dto.ParkingDTO;
+import com.devsimple.cloudparking.controller.dto.ParkingUpdateDTO;
 import com.devsimple.cloudparking.entity.Parking;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,10 @@ public class ModelMapperConfig {
     }
 
     public Parking toParkingCreate(ParkingCreateDTO parkingDTO){
+        return MODEL_MAPPER.map(parkingDTO, Parking.class);
+    }
+
+    public Parking toParkingUpdate(ParkingUpdateDTO parkingDTO){
         return MODEL_MAPPER.map(parkingDTO, Parking.class);
     }
 }

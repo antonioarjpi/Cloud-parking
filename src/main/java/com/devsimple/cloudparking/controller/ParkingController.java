@@ -3,6 +3,7 @@ package com.devsimple.cloudparking.controller;
 import com.devsimple.cloudparking.config.ModelMapperConfig;
 import com.devsimple.cloudparking.controller.dto.ParkingCreateDTO;
 import com.devsimple.cloudparking.controller.dto.ParkingDTO;
+import com.devsimple.cloudparking.controller.dto.ParkingUpdateDTO;
 import com.devsimple.cloudparking.entity.Parking;
 import com.devsimple.cloudparking.service.ParkingService;
 import io.swagger.annotations.Api;
@@ -49,6 +50,22 @@ public class ParkingController {
         var save = service.save(parking);
         var result = modelMapper.parkingDTO(save);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
+
+    @ApiOperation("Create Parking")
+    @PutMapping("/{id}")
+    public ResponseEntity<ParkingDTO> update(@PathVariable String id, @RequestBody ParkingUpdateDTO parkingDTO) {
+        var parking = modelMapper.toParkingUpdate(parkingDTO);
+        var save = service.update(id, parking);
+        var result = modelMapper.parkingDTO(save);
+        return ResponseEntity.ok(result);
+    }
+
+    @ApiOperation("Delete Parking")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

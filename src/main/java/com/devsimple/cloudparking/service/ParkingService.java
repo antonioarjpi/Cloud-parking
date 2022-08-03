@@ -1,6 +1,7 @@
 package com.devsimple.cloudparking.service;
 
 import com.devsimple.cloudparking.entity.Parking;
+import com.devsimple.cloudparking.exceptions.ParkingNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -40,7 +41,11 @@ public class ParkingService {
     }
 
     public Parking findById(String id) {
-        return parkingMap.get(id);
+        Parking parking = parkingMap.get(id);
+        if (parking == null) {
+            throw new ParkingNotFoundException("Parking not found");
+        }
+        return parking;
     }
 
     public List<Parking> findAll() {
@@ -53,5 +58,17 @@ public class ParkingService {
         parking.setEntryDate(LocalDateTime.now());
         parkingMap.put(uuid, parking);
         return parking;
+    }
+
+    public Parking update(String id, Parking parkingCreate) {
+        Parking parking = findById(id);
+        parking.setColor(parkingCreate.getColor());
+        parkingMap.replace(id, parking);
+        return parking;
+    }
+
+    public void delete(String id) {
+        findById(id);
+        parkingMap.remove(id);
     }
 }
