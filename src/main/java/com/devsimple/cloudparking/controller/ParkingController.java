@@ -68,4 +68,11 @@ public class ParkingController {
         return ResponseEntity.noContent().build();
     }
 
+    @ApiOperation("Delete Parking")
+    @PostMapping("/checkout/{id}")
+    public ResponseEntity<Parking> checkOut(@PathVariable String id){
+        Parking parking = service.checkOut(id);
+        return ResponseEntity.ok(parking);
+    }
+
 }

@@ -2,73 +2,92 @@ package com.devsimple.cloudparking.service;
 
 import com.devsimple.cloudparking.entity.Parking;
 import com.devsimple.cloudparking.exceptions.ParkingNotFoundException;
+import com.devsimple.cloudparking.repository.ParkingRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class ParkingService {
 
-    private static Map<String, Parking> parkingMap = new HashMap();
+    @Autowired
+    private ParkingRepository repository;
 
-    static {
-        var id = getUUID();
-        Parking parking = new Parking();
-        parking.setId(id);
-        parking.setModel("Sandero");
-        parking.setState("PI");
-        parking.setColor("Branco");
-        parking.setLicense("MT-1221");
-        parkingMap.put(id, parking);
-
-        var id2 = getUUID();
-        Parking parking2 = new Parking();
-        parking2.setId(id2);
-        parking2.setModel("GOL");
-        parking2.setState("MA");
-        parking2.setColor("PRATA");
-        parking2.setLicense("MT-1000");
-        parkingMap.put(id2, parking2);
-    }
+    public static final int ONE_HOUR = 60;
+    public static final int TWENTY_FOUR_HOUR = 24 * ONE_HOUR;
+    public static final double ONE_HOUR_VALUE = 5.0;
+    public static final double ADDITIONAL_PER_HOUR_VALUE = 3;
+    public static final double DAY_VALUE = 30;
 
     private static String getUUID() {
         return UUID.randomUUID().toString().replace("-", "");
     }
 
+    @Transactional(readOnly = true)
     public Parking findById(String id) {
-        Parking parking = parkingMap.get(id);
-        if (parking == null) {
-            throw new ParkingNotFoundException("Parking not found");
-        }
-        return parking;
+        return repository.findById(id).orElseThrow(() -> new ParkingNotFoundException("Parking not found"));
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Parking> findAll() {
-        return parkingMap.values().stream().collect(Collectors.toList());
+        return repository.findAll();
     }
 
+    @Transactional
     public Parking save(Parking parking) {
         String uuid = getUUID();
         parking.setId(uuid);
         parking.setEntryDate(LocalDateTime.now());
-        parkingMap.put(uuid, parking);
-        return parking;
+        return repository.save(parking);
     }
 
+    @Transactional
     public Parking update(String id, Parking parkingCreate) {
         Parking parking = findById(id);
         parking.setColor(parkingCreate.getColor());
-        parkingMap.replace(id, parking);
+        parking.setModel(parkingCreate.getModel());
+        repository.save(parking);
         return parking;
     }
 
+    @Transactional
     public void delete(String id) {
-        findById(id);
-        parkingMap.remove(id);
+        Parking parking = findById(id);
+        repository.delete(parking);
+    }
+
+    @Transactional
+    public Parking checkOut(String id){
+        Parking parking = findById(id);
+        parking.setExitDate(LocalDateTime.now());
+        parking.setBill(getBill(parking.getEntryDate(), parking.getExitDate()));
+        return repository.save(parking);
+    }
+
+    private Double getBill(LocalDateTime entryDate, LocalDateTime exitDate) {
+        long minutes = entryDate.until(exitDate, ChronoUnit.MINUTES);
+        Double bill = 0.0;
+        if (minutes <= ONE_HOUR) {
+            return ONE_HOUR_VALUE;
+        }
+        if (minutes <= TWENTY_FOUR_HOUR) {
+            bill = ONE_HOUR_VALUE;
+            int hours = (int) (minutes / ONE_HOUR);
+            for (int i = 0; i < hours; i++) {
+                bill += ADDITIONAL_PER_HOUR_VALUE;
+            }
+            return bill;
+        }
+        int days = (int) (minutes / TWENTY_FOUR_HOUR);
+        for (int i = 0; i < days; i++) {
+            bill += DAY_VALUE;
+        }
+        return bill;
     }
 }

@@ -3,12 +3,22 @@ package com.devsimple.cloudparking.controller.dto;
 public class ParkingUpdateDTO {
 
     private String color;
+    private String model;
 
     public ParkingUpdateDTO() {
     }
 
-    public ParkingUpdateDTO(String color) {
+    public ParkingUpdateDTO(String color, String model) {
         this.color = color;
+        this.model = model;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
     }
 
     public String getColor() {
